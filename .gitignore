@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.idea/
+
+# Full raw downloads are large and reproducible from the sources in the
+# README; only the committed samples/models are needed to run the app.
+data/url_data_raw.csv
+data/*.zip

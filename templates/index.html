@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spam &amp; Phishing Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero">
+    <h1>Spam &amp; Phishing Detector</h1>
+    <p>Two ML models trained on real-world data: a TF-IDF + Logistic Regression
+       text classifier for email/SMS spam, and a Random Forest over engineered
+       lexical features for phishing URLs. Everything runs locally &mdash; no
+       message or link you submit is sent anywhere else.</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>Email / SMS text</h2>
+      <form method="post" action="{{ url_for('check_email') }}">
+        <textarea name="email_text" rows="7" placeholder="Paste an email or text message here&hellip;">{{ email_text or "" }}</textarea>
+        <button type="submit">Analyze message</button>
+      </form>
+
+      {% if email_result %}
+      <div class="result level-{{ email_result.level | lower }}">
+        <div class="result-header">
+          <span class="verdict">{{ email_result.verdict }}</span>
+          <span class="badge">{{ email_result.level }} threat</span>
+        </div>
+        <div class="meter">
+          <div class="meter-fill" style="width: {{ email_result.probability }}%"></div>
+        </div>
+        <p class="score">{{ email_result.probability }}% probability of spam/phishing</p>
+        {% if email_result.signals %}
+        <p class="signals"><strong>Contributing terms:</strong>
+          {% for s in email_result.signals %}<span class="chip">{{ s }}</span>{% endfor %}
+        </p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>URL</h2>
+      <form method="post" action="{{ url_for('check_url') }}">
+        <input type="text" name="url_text" placeholder="e.g. http://example.com/login" value="{{ url_text or '' }}">
+        <button type="submit">Analyze URL</button>
+      </form>
+
+      {% if url_result %}
+      <div class="result level-{{ url_result.level | lower }}">
+        <div class="result-header">
+          <span class="verdict">{{ url_result.verdict }}</span>
+          <span class="badge">{{ url_result.level }} threat</span>
+        </div>
+        <div class="meter">
+          <div class="meter-fill" style="width: {{ url_result.probability }}%"></div>
+        </div>
+        <p class="score">{{ url_result.probability }}% probability of phishing</p>
+        {% if url_result.signals %}
+        <p class="signals"><strong>Contributing signals:</strong>
+          {% for name, val in url_result.signals %}<span class="chip">{{ name }}: {{ val }}</span>{% endfor %}
+        </p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer>
+    <p>Built with Flask + scikit-learn. See the <a href="https://github.com/NisirBage/Spam-and-Phishing-Detector" target="_blank" rel="noopener">README</a> for datasets, model details and accuracy metrics.</p>
+  </footer>
+</body>
+</html>
